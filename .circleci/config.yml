@@ -32,9 +32,6 @@ jobs:
       - image: cimg/node:18.0
     steps:
       - checkout
-      - setup_remote_docker
-      - aws-cli/install
-      - kubernetes/install-kubectl
       - run:
           name: Build and push Docker image
           command: |
@@ -42,8 +39,8 @@ jobs:
             TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
             IMAGE_TAG="${BRANCH}-${TIMESTAMP}"
             echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-            docker build -t chafah/landmark-web-app:$IMAGE_TAG .
-            docker push chafah/landmark-web-app:$IMAGE_TAG
+            docker build -t johumole/landmark-web-app:$IMAGE_TAG .
+            docker push johumole/landmark-web-app:$IMAGE_TAG
             echo "export IMAGE_TAG=$IMAGE_TAG" >> $BASH_ENV
       - run:
           name: Deploy to Kubernetes (develop namespace)
@@ -51,7 +48,7 @@ jobs:
             aws eks update-kubeconfig --name landmark-eks --region us-east-1
             sed -i 's/name: landmark/name: develop/g' k8s/namespace.yml
             sed -i 's/namespace: landmark/namespace: develop/g' k8s/*.yml
-            sed -i "s|image: landmark-technologies:latest|image: chafah/landmark-web-app:$IMAGE_TAG|g" k8s/app-deployment.yml
+            sed -i "s|image: landmark-technologies:latest|image: johumole/landmark-web-app:$IMAGE_TAG|g" k8s/app-deployment.yml
             kubectl apply -f k8s/namespace.yml
             kubectl apply -f k8s/
 
@@ -60,9 +57,6 @@ jobs:
       - image: cimg/node:18.0
     steps:
       - checkout
-      - setup_remote_docker
-      - aws-cli/install
-      - kubernetes/install-kubectl
       - run:
           name: Build and push Docker image
           command: |
@@ -70,8 +64,8 @@ jobs:
             TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
             IMAGE_TAG="${BRANCH}-${TIMESTAMP}"
             echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-            docker build -t chafah/landmark-web-app:$IMAGE_TAG .
-            docker push chafah/landmark-web-app:$IMAGE_TAG
+            docker build -t johumole/landmark-web-app:$IMAGE_TAG .
+            docker push johumole/landmark-web-app:$IMAGE_TAG
             echo "export IMAGE_TAG=$IMAGE_TAG" >> $BASH_ENV
       - run:
           name: Deploy to Kubernetes (staging namespace)
@@ -79,7 +73,7 @@ jobs:
             aws eks update-kubeconfig --name landmark-eks --region us-east-1
             sed -i 's/name: landmark/name: staging/g' k8s/namespace.yml
             sed -i 's/namespace: landmark/namespace: staging/g' k8s/*.yml
-            sed -i "s|image: landmark-technologies:latest|image: chafah/landmark-web-app:$IMAGE_TAG|g" k8s/app-deployment.yml
+            sed -i "s|image: landmark-technologies:latest|image: johumole/landmark-web-app:$IMAGE_TAG|g" k8s/app-deployment.yml
             kubectl apply -f k8s/namespace.yml
             kubectl apply -f k8s/
 
@@ -88,9 +82,6 @@ jobs:
       - image: cimg/node:18.0
     steps:
       - checkout
-      - setup_remote_docker
-      - aws-cli/install
-      - kubernetes/install-kubectl
       - run:
           name: Build and push Docker image
           command: |
@@ -98,18 +89,17 @@ jobs:
             TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
             IMAGE_TAG="${BRANCH}-${TIMESTAMP}"
             echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-            docker build -t chafah/landmark-web-app:$IMAGE_TAG .
-            docker push chafah/landmark-web-app:$IMAGE_TAG
+            docker build -t johumole/landmark-web-app:$IMAGE_TAG .
+            docker push johumole/landmark-web-app:$IMAGE_TAG
             echo "export IMAGE_TAG=$IMAGE_TAG" >> $BASH_ENV
       - run:
           name: Deploy to Kubernetes (production namespace)
           command: |
-            aws eks update-kubeconfig --name landmark-eks --region us-east-1
+            aws eks update-kubeconfig --name first-cluster --region us-east-1
             sed -i 's/name: landmark/name: production/g' k8s/namespace.yml
-            kubectl apply -f k8s/namespace.yml
             sed -i 's/namespace: landmark/namespace: production/g' k8s/*.yml
-            sed -i "s|image: landmark-technologies:latest.*|image: chafah/landmark-web-app:$IMAGE_TAG|g" k8s/app-deployment.yml
-            kubectl wait --for=jsonpath='{.status.phase}'=Active namespace/production --timeout=30s
+            sed -i "s|image: landmark-technologies:latest|image: johumole/landmark-web-app:$IMAGE_TAG|g" k8s/app-deployment.yml
+            kubectl apply -f k8s/namespace.yml
             kubectl apply -f k8s/
 
 workflows:
