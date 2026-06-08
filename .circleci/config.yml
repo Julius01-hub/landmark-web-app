@@ -73,12 +73,13 @@ jobs:
               --approve
             sleep 30
             helm repo add eks https://aws.github.io/eks-charts && helm repo update
+            helm uninstall aws-load-balancer-controller -n kube-system 2>/dev/null || true
             helm upgrade --install aws-load-balancer-controller eks/aws-load-balancer-controller \
               -n kube-system \
               --set clusterName=landmark-eks \
               --set serviceAccount.create=false \
               --set serviceAccount.name=aws-load-balancer-controller \
-              --timeout 5m \
+              --timeout 10m \
               --wait
             sed -i 's/name: landmark/name: develop/g' k8s/namespace.yml
             kubectl apply -f k8s/namespace.yml
@@ -132,12 +133,13 @@ jobs:
               --approve
             sleep 30
             helm repo add eks https://aws.github.io/eks-charts && helm repo update
+            helm uninstall aws-load-balancer-controller -n kube-system 2>/dev/null || true
             helm upgrade --install aws-load-balancer-controller eks/aws-load-balancer-controller \
               -n kube-system \
               --set clusterName=landmark-eks \
               --set serviceAccount.create=false \
               --set serviceAccount.name=aws-load-balancer-controller \
-              --timeout 5m \
+              --timeout 10m \
               --wait
             sed -i 's/name: landmark/name: staging/g' k8s/namespace.yml
             kubectl apply -f k8s/namespace.yml
@@ -191,12 +193,13 @@ jobs:
               --approve
             sleep 30
             helm repo add eks https://aws.github.io/eks-charts && helm repo update
+            helm uninstall aws-load-balancer-controller -n kube-system 2>/dev/null || true
             helm upgrade --install aws-load-balancer-controller eks/aws-load-balancer-controller \
               -n kube-system \
               --set clusterName=first-cluster \
               --set serviceAccount.create=false \
               --set serviceAccount.name=aws-load-balancer-controller \
-              --timeout 5m \
+              --timeout 10m \
               --wait
             sed -i 's/name: landmark/name: production/g' k8s/namespace.yml
             kubectl apply -f k8s/namespace.yml
