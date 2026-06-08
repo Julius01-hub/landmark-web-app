@@ -58,12 +58,15 @@ jobs:
           name: Deploy to Kubernetes (develop namespace)
           command: |
             aws eks update-kubeconfig --name landmark-eks --region us-east-1
+            ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+            curl -o /tmp/iam-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/main/docs/install/iam_policy.json
+            aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document file:///tmp/iam-policy.json 2>/dev/null || true
             eksctl utils associate-iam-oidc-provider --region us-east-1 --cluster landmark-eks --approve
             eksctl create iamserviceaccount \
               --cluster=landmark-eks \
               --namespace=kube-system \
               --name=aws-load-balancer-controller \
-              --attach-policy-arn=arn:aws:iam::aws:policy/AmazonEKS_LB_Controller_Policy \
+              --attach-policy-arn=arn:aws:iam::${ACCOUNT_ID}:policy/AWSLoadBalancerControllerIAMPolicy \
               --override-existing-serviceaccounts \
               --region us-east-1 \
               --approve
@@ -111,12 +114,15 @@ jobs:
           name: Deploy to Kubernetes (staging namespace)
           command: |
             aws eks update-kubeconfig --name landmark-eks --region us-east-1
+            ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+            curl -o /tmp/iam-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/main/docs/install/iam_policy.json
+            aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document file:///tmp/iam-policy.json 2>/dev/null || true
             eksctl utils associate-iam-oidc-provider --region us-east-1 --cluster landmark-eks --approve
             eksctl create iamserviceaccount \
               --cluster=landmark-eks \
               --namespace=kube-system \
               --name=aws-load-balancer-controller \
-              --attach-policy-arn=arn:aws:iam::aws:policy/AmazonEKS_LB_Controller_Policy \
+              --attach-policy-arn=arn:aws:iam::${ACCOUNT_ID}:policy/AWSLoadBalancerControllerIAMPolicy \
               --override-existing-serviceaccounts \
               --region us-east-1 \
               --approve
@@ -164,12 +170,15 @@ jobs:
           name: Deploy to Kubernetes (production namespace)
           command: |
             aws eks update-kubeconfig --name first-cluster --region us-east-1
+            ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+            curl -o /tmp/iam-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/main/docs/install/iam_policy.json
+            aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document file:///tmp/iam-policy.json 2>/dev/null || true
             eksctl utils associate-iam-oidc-provider --region us-east-1 --cluster first-cluster --approve
             eksctl create iamserviceaccount \
               --cluster=first-cluster \
               --namespace=kube-system \
               --name=aws-load-balancer-controller \
-              --attach-policy-arn=arn:aws:iam::aws:policy/AmazonEKS_LB_Controller_Policy \
+              --attach-policy-arn=arn:aws:iam::${ACCOUNT_ID}:policy/AWSLoadBalancerControllerIAMPolicy \
               --override-existing-serviceaccounts \
               --region us-east-1 \
               --approve
