@@ -9,15 +9,6 @@ pipeline {
         EKS_CLUSTER = 'first-cluster'
     }
     stages {
-        stage('Install kubectl') {
-            steps {
-                sh '''
-                    curl -LO "https://dl.k8s.io/release/$(curl -Ls https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-                    chmod +x kubectl
-                    mv kubectl /usr/local/bin/kubectl
-                '''
-            }
-        }
         stage('Checkout') {
             steps { checkout scm }
         }
@@ -48,7 +39,6 @@ pipeline {
                     branch pattern: 'release*', comparator: 'GLOB'
                     branch 'main'
                     branch pattern: 'hotfix*', comparator: 'GLOB'
-                    // Allow regular pipeline jobs (BRANCH_NAME is null)
                     expression { return env.BRANCH_NAME == null }
                 }
             }
@@ -66,6 +56,8 @@ pipeline {
             steps {
                 withAWS(credentials: 'aws-creds', region: "${AWS_REGION}") {
                     sh """
+                        curl -LO "https://dl.k8s.io/release/\$(curl -Ls https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+                        chmod +x kubectl && mv kubectl /usr/local/bin/kubectl
                         aws eks update-kubeconfig --name ${EKS_CLUSTER} --region ${AWS_REGION}
                         sed -i 's/name: landmark/name: develop/g' k8s/namespace.yml
                         sed -i 's/namespace: landmark/namespace: develop/g' k8s/*.yml
@@ -81,6 +73,8 @@ pipeline {
             steps {
                 withAWS(credentials: 'aws-creds', region: "${AWS_REGION}") {
                     sh """
+                        curl -LO "https://dl.k8s.io/release/\$(curl -Ls https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+                        chmod +x kubectl && mv kubectl /usr/local/bin/kubectl
                         aws eks update-kubeconfig --name ${EKS_CLUSTER} --region ${AWS_REGION}
                         sed -i 's/name: landmark/name: staging/g' k8s/namespace.yml
                         sed -i 's/namespace: landmark/namespace: staging/g' k8s/*.yml
@@ -102,6 +96,8 @@ pipeline {
             steps {
                 withAWS(credentials: 'aws-creds', region: "${AWS_REGION}") {
                     sh """
+                        curl -LO "https://dl.k8s.io/release/\$(curl -Ls https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+                        chmod +x kubectl && mv kubectl /usr/local/bin/kubectl
                         aws eks update-kubeconfig --name ${EKS_CLUSTER} --region ${AWS_REGION}
                         sed -i 's/name: landmark/name: production/g' k8s/namespace.yml
                         sed -i 's/namespace: landmark/namespace: production/g' k8s/*.yml
