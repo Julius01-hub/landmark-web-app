@@ -9,6 +9,15 @@ pipeline {
         EKS_CLUSTER = 'first-cluster'
     }
     stages {
+        stage('Install kubectl') {
+            steps {
+                sh '''
+                    curl -LO "https://dl.k8s.io/release/$(curl -Ls https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+                    chmod +x kubectl
+                    mv kubectl /usr/local/bin/kubectl
+                '''
+            }
+        }
         stage('Checkout') {
             steps { checkout scm }
         }
