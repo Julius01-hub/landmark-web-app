@@ -4,9 +4,9 @@ pipeline {
         nodejs 'NodeJS-18'
     }
     environment {
-        DOCKER_REPO = 'chafah/landmark-web-app'
+        DOCKER_REPO = 'johumole/landmark-web-app'
         AWS_REGION = 'us-east-1'
-        EKS_CLUSTER = 'landmark-eks'
+        EKS_CLUSTER = 'first-cluster'
     }
     stages {
         stage('Checkout') {
